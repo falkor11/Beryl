@@ -1,0 +1,5 @@
+beryl.iso
+target/
+limine/
+ovmf/
+*.elf
