@@ -68,7 +68,7 @@ extern "C" fn _start() -> ! {
         let mut apic = core!().apic.lock();
         apic.enable();
     }
- 
+
     log::info!("Finished intializzation, starting other cores!");
 
     smp::init();

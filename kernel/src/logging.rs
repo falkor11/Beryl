@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-use crate::{core, core_locals, serial_print, fb_print};
+use crate::{core, core_locals, fb_print, serial_print};
 use log::{Level, LevelFilter, Log, Metadata, Record};
 use spin::Mutex;
 
@@ -45,7 +45,7 @@ impl Log for Logger {
             macro generic_log($($arg:tt)*) {
                 {
                     serial_print!("{}", format_args!($($arg)*));
-                    
+
                     if !matches!(record.metadata().level(), Level::Trace | Level::Debug) {
                         fb_print!("{}", format_args!($($arg)*));
                     }

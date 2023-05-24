@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-use core::fmt::{Arguments, self, Write};
 use crate::framebuffer::Framebuffer;
+use core::fmt::{self, Arguments, Write};
 use limine::LimineFramebufferRequest;
 use psf2::Font;
 use spin::Mutex;
@@ -78,7 +78,8 @@ impl<'fb, 'font> Performer<'fb, 'font> {
         let offset = self.offset;
         let max = self.max;
 
-        self.framebuffer.clear_part(!0, offset.0, offset.1, max.0 + 3, max.1 + 3);
+        self.framebuffer
+            .clear_part(!0, offset.0, offset.1, max.0 + 3, max.1 + 3);
     }
 }
 
@@ -115,37 +116,29 @@ impl Perform for Performer<'_, '_> {
         }
     }
 
-    fn csi_dispatch(
-        &mut self,
-        params: &Params,
-        _intermediates: &[u8],
-        ignore: bool,
-        action: char
-    ) {
+    fn csi_dispatch(&mut self, params: &Params, _intermediates: &[u8], ignore: bool, action: char) {
         if ignore {
             return;
         }
 
         for param in params.iter() {
             match &param {
-                &[0]    => self.color = 0,
-                &[0x1]  => {}
+                &[0] => self.color = 0,
+                &[0x1] => {}
                 &[0x25] => {}
                 &[31] => {
                     self.color = u32::from_le_bytes([0, 0, 170, 255]);
-                },
-                &[32] => {
-                    self.color = u32::from_le_bytes([0, 170, 0, 255])
-                },
+                }
+                &[32] => self.color = u32::from_le_bytes([0, 170, 0, 255]),
                 &[33] => {
                     self.color = u32::from_le_bytes([6, 159, 255, 255]);
-                },
+                }
                 &[34] => {
                     self.color = u32::from_le_bytes([170, 0, 0, 255]);
-                },
+                }
                 &[35] => {
                     self.color = u32::from_le_bytes([170, 0, 170, 255]);
-                },
+                }
                 x => unimplemented!("Unknown param: {x:#x?}"),
             }
         }
@@ -154,7 +147,7 @@ impl Perform for Performer<'_, '_> {
 
 pub struct Writer<'fb, 'font> {
     parser: Parser,
-    performer: Performer<'fb, 'font>
+    performer: Performer<'fb, 'font>,
 }
 
 impl<'fb, 'font> Writer<'fb, 'font> {
@@ -162,7 +155,7 @@ impl<'fb, 'font> Writer<'fb, 'font> {
         framebuffer: Framebuffer<'fb>,
         font: &'font [u8],
         offset: (usize, usize),
-        max: (usize, usize)
+        max: (usize, usize),
     ) -> Writer<'fb, 'font> {
         Writer {
             parser: Parser::new(),
@@ -193,13 +186,13 @@ pub fn init() {
     fb.clear(0x00_00_80_83);
 
     // Pseudo console window
-    fb.clear_part(0,             100, 100, fb.width() - 200, fb.height() - 200);
-    fb.clear_part(!0,            101, 101, fb.width() - 202, fb.height() - 202);
+    fb.clear_part(0, 100, 100, fb.width() - 200, fb.height() - 200);
+    fb.clear_part(!0, 101, 101, fb.width() - 202, fb.height() - 202);
     fb.clear_part(0xE0_E0_E0_E0, 102, 102, fb.width() - 204, fb.height() - 204);
     fb.clear_part(0xE0_E0_E0_E0, 103, 103, fb.width() - 206, fb.height() - 206);
     fb.clear_part(0xB7_B7_B7_B7, 104, 104, fb.width() - 208, fb.height() - 208);
-    fb.clear_part(0,             105, 105, fb.width() - 210, fb.height() - 210);
-    fb.clear_part(!0,            106, 106, fb.width() - 212, fb.height() - 212);
+    fb.clear_part(0, 105, 105, fb.width() - 210, fb.height() - 210);
+    fb.clear_part(!0, 106, 106, fb.width() - 212, fb.height() - 212);
 
     let width = fb.width();
     let height = fb.height();
