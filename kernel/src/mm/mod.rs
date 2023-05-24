@@ -43,7 +43,7 @@ pub fn init() {
             .get()
             .expect("Cannot get the HHDM address");
 
-        log::info!("HHDM @ {:#x}", hhdm.offset);
+        log::debug!("HHDM @ {:#x}", hhdm.offset);
 
         unsafe {
             core::ptr::write(&mut HHDM_ADDRESS, hhdm.offset);

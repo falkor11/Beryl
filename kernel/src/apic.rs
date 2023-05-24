@@ -88,7 +88,7 @@ impl Apic {
                 ticks += 0xFFFFFFFF - self.read(Register::CurrentCount);
             }
 
-            log::info!("{} APIC ticks/ms", ticks / 16);
+            log::debug!("{} APIC ticks/ms", ticks / 16);
             self.timer_freq = (ticks / 16) as usize;
         }
     }

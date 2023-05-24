@@ -30,6 +30,9 @@ mod apic;
 #[macro_use]
 mod core_locals;
 mod cpu;
+#[macro_use]
+mod fb_renderer;
+mod framebuffer;
 mod gdt;
 mod hpet;
 mod interrupts;
@@ -45,11 +48,12 @@ static BOOT_INFO: LimineBootInfoRequest = LimineBootInfoRequest::new(0);
 #[no_mangle]
 extern "C" fn _start() -> ! {
     logging::init();
+    fb_renderer::init();
 
-    log::info!("Beryl(v{}) loading", env!("CARGO_PKG_VERSION"));
+    log::info!("Beryl v{} loading", env!("CARGO_PKG_VERSION"));
     let boot_info = BOOT_INFO.get_response().get().unwrap();
     log::info!(
-        "Booted by {:?}({:?})",
+        "Booted by {:?} ({:?})",
         boot_info.name.to_str().unwrap(),
         boot_info.version.to_str().unwrap()
     );
@@ -64,7 +68,7 @@ extern "C" fn _start() -> ! {
         let mut apic = core!().apic.lock();
         apic.enable();
     }
-
+ 
     log::info!("Finished intializzation, starting other cores!");
 
     smp::init();
@@ -74,6 +78,11 @@ extern "C" fn _start() -> ! {
 
 #[panic_handler]
 fn rust_panic(info: &core::panic::PanicInfo) -> ! {
+    unsafe {
+        logging::unlock();
+        fb_renderer::unlock();
+    }
+
     log::error!("PANIC: {info:#?}");
 
     // TODO: Panic on every core

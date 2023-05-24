@@ -16,12 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-use crate::{core, core_locals, serial_print};
+use crate::{core, core_locals, serial_print, fb_print};
 use log::{Level, LevelFilter, Log, Metadata, Record};
 use spin::Mutex;
 
 static LOGGER_LOCK: Mutex<()> = Mutex::new(());
 static LOGGER: Logger = Logger;
+
+pub unsafe fn unlock() {
+    LOGGER_LOCK.force_unlock()
+}
 
 struct Logger;
 
@@ -41,6 +45,10 @@ impl Log for Logger {
             macro generic_log($($arg:tt)*) {
                 {
                     serial_print!("{}", format_args!($($arg)*));
+                    
+                    if !matches!(record.metadata().level(), Level::Trace | Level::Debug) {
+                        fb_print!("{}", format_args!($($arg)*));
+                    }
                 }
             }
 
@@ -49,7 +57,7 @@ impl Log for Logger {
             } else {
                 0
             };
-            serial_print!("\x1b[37;1m[{core_id}] {file}:{line} ");
+            generic_log!("\x1b[37;1m[{core_id}] {file}:{line} ");
 
             match record.level() {
                 Level::Info => generic_log!("\x1b[32;1minfo "), // green info

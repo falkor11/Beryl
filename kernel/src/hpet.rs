@@ -90,7 +90,7 @@ impl Hpet {
         let table: &HpetTable = unsafe { &*(&*table).data().cast() };
         let regs = unsafe { &mut *(table.address.address as *mut HpetRegisters) };
 
-        log::info!("Caps: {:x?}", regs.caps);
+        log::debug!("Caps: {:x?}", regs.caps);
 
         regs.general_config = 0;
         regs.counter_val = 0;
@@ -120,7 +120,7 @@ unsafe impl Send for Hpet {}
 static HPET: Mutex<Option<Hpet>> = Mutex::new(None);
 
 pub fn init(table: *const SdtHeader) {
-    log::info!("Initializing the HPET");
+    log::trace!("Initializing the HPET");
     *HPET.lock() = Some(Hpet::new(table));
 }
 

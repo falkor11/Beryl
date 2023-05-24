@@ -6,7 +6,7 @@ all: $(IMAGE_NAME).iso
 
 .PHONY: run
 run: ovmf $(IMAGE_NAME).iso
-	qemu-system-x86_64 -enable-kvm -cpu host,migratable=off -smp 2 -M q35 -m 2G -bios ovmf/OVMF.fd -cdrom $(IMAGE_NAME).iso -boot d -no-shutdown -no-reboot -serial file:/dev/stdout -monitor stdio
+	qemu-system-x86_64 -bios ovmf/OVMF.fd -enable-kvm -cpu host,migratable=off -smp 2 -M q35 -m 2G -cdrom $(IMAGE_NAME).iso -boot d -no-shutdown -no-reboot -serial file:/dev/stdout -monitor stdio
 
 ovmf:
 	mkdir -p ovmf

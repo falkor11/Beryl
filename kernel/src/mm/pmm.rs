@@ -26,7 +26,7 @@ static MEMMAP: LimineMemmapRequest = LimineMemmapRequest::new(0);
 static LAST_USED_INDEX: AtomicUsize = AtomicUsize::new(0);
 
 pub(super) fn init() {
-    log::info!("Initializing the pmm");
+    log::trace!("Initializing the pmm");
 
     let memmap = MEMMAP.get_response().get_mut().expect("No memory map");
     let mut highest_addr = 0u64;
@@ -44,10 +44,10 @@ pub(super) fn init() {
         }
     }
 
-    log::info!("Highest addr: {:#x}", highest_addr);
+    log::debug!("Highest addr: {:#x}", highest_addr);
 
     let bitmap_size = super::align_up(highest_addr / 4096 / 8, 4096);
-    log::info!("Bitmap size: {:#x}", bitmap_size);
+    log::debug!("Bitmap size: {:#x}", bitmap_size);
 
     let mut bitmap: Option<Bitmap> = None;
     for entry in memmap.memmap_mut() {
