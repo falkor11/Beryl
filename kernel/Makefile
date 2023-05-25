@@ -3,8 +3,8 @@ override MAKEFLAGS += -rR
 # Default target.
 .PHONY: all
 all:
-	cargo build --target x86_64-unknown-none
-	cp target/x86_64-unknown-none/debug/kernel kernel.elf
+	RUSTFLAGS="-Crelocation-model=static -Cforce-frame-pointers=true" cargo build --target x86_64-unknown-none --release
+	cp target/x86_64-unknown-none/release/kernel kernel.elf
 
 # Remove object files and the final executable.
 .PHONY: clean

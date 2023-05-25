@@ -54,7 +54,7 @@ impl<'fb, 'font> Performer<'fb, 'font> {
     }
 
     pub fn write_char(&mut self, chr: char, x: usize, y: usize) {
-        let chr = self.font.get_ascii(chr as u8).unwrap();
+        let chr = self.font.get_ascii(chr as u8).expect("A");
 
         for (y_idx, row) in chr.enumerate() {
             for (x_idx, pixel) in row.enumerate() {

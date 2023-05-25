@@ -46,7 +46,7 @@ impl Log for Logger {
                 {
                     serial_print!("{}", format_args!($($arg)*));
 
-                    if !matches!(record.metadata().level(), Level::Trace | Level::Debug) {
+                    if !matches!(record.metadata().level(), Level::Trace | Level::Debug | Level::Error) {
                         fb_print!("{}", format_args!($($arg)*));
                     }
                 }

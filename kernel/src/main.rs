@@ -27,6 +27,7 @@ extern crate alloc;
 
 mod acpi;
 mod apic;
+mod backtrace;
 #[macro_use]
 mod core_locals;
 mod cpu;
@@ -84,6 +85,7 @@ fn rust_panic(info: &core::panic::PanicInfo) -> ! {
     }
 
     log::error!("PANIC: {info:#?}");
+    backtrace::backtrace(None);
 
     // TODO: Panic on every core
 

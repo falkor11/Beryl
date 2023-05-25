@@ -45,7 +45,7 @@ impl Alloc {
 
     pub fn alloc(&mut self, layout: Layout) -> *mut u8 {
         self.mem_used += layout.size();
-        let slab_i = [8, 16, 24, 32, 48, 64, 128, 156, 512, 1024]
+        let slab_i = [8, 16, 24, 32, 48, 64, 128, 256, 512, 1024]
             .into_iter()
             .enumerate()
             .find_map(|(i, s)| if s >= layout.size() { Some(i) } else { None });
@@ -69,6 +69,47 @@ impl Alloc {
         let slab: &mut Slab = unsafe { &mut *((ptr as u64 & !0xFFF) as *mut Slab) };
         slab.free(ptr);
     }
+
+    pub fn realloc(&mut self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+        if ptr.is_null() {
+            return self.alloc(Layout::from_size_align(new_size, layout.align()).unwrap());
+        }
+
+        if (ptr as u64) & 0xFFF == 0 {
+            if align_up(layout.size() as u64, 4096) == new_size as u64 {
+                return ptr;
+            }
+
+            let new_ptr = self.alloc(Layout::from_size_align(new_size, layout.align()).unwrap());
+
+            if layout.size() > new_size {
+                unsafe {
+                    core::ptr::copy_nonoverlapping(ptr, new_ptr, new_size);
+                }
+            } else {
+                unsafe {
+                    core::ptr::copy_nonoverlapping(ptr, new_ptr, layout.size());
+                }
+            }
+
+            return new_ptr;
+        }
+
+        let slab: &mut Slab = unsafe { &mut *((ptr as u64 & !0xFFF) as *mut Slab) };
+
+        if new_size > slab.size {
+            let new_ptr = self.alloc(Layout::from_size_align(new_size, layout.align()).unwrap());
+
+            unsafe {
+                core::ptr::copy_nonoverlapping(ptr, new_ptr, slab.size);
+            }
+
+            slab.free(ptr);
+            return new_ptr;
+        }   
+
+        ptr
+    }
 }
 
 struct LockedAlloc(Mutex<Alloc>);
@@ -83,6 +124,10 @@ unsafe impl GlobalAlloc for LockedAlloc {
 
     unsafe fn dealloc(&self, p: *mut u8, l: Layout) {
         self.0.lock().free(p, l)
+    }
+
+    unsafe fn realloc(&self, p: *mut u8, l: Layout, ns: usize) -> *mut u8 {
+        self.0.lock().realloc(p, l, ns)
     }
 }
 

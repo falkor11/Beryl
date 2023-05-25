@@ -18,7 +18,7 @@
 use super::{align_up, pmm};
 
 pub(super) struct Slab {
-    size: usize,
+    pub(super) size: usize,
     first_free: *mut *mut (),
 }
 

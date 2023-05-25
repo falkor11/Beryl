@@ -177,7 +177,8 @@ unsafe extern "C" fn generic_interrupt_handler(ist: usize, stack: *mut Interrupt
     match handler {
         Some(handler) => handler(stack),
         None => {
-            panic!(
+            crate::backtrace::backtrace(Some(stack.rbp));
+            log::error!(
                 r#"Interrupt {:#x}, error code {:#x} on core {}
                 Registers at exception:
                     rax {:016x} rcx {:016x} rdx {:016x} rbx {:016x}
@@ -214,6 +215,7 @@ unsafe extern "C" fn generic_interrupt_handler(ist: usize, stack: *mut Interrupt
                 stack.cs,
                 stack.ss
             );
+            crate::hcf()
         }
     }
 }

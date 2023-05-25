@@ -42,7 +42,7 @@ impl Rsdp {
     }
 
     #[inline]
-    pub unsafe fn get_xsdt(&self) -> &Xsdt {
+    pub unsafe fn get_xsdt(&self) -> &'static Xsdt {
         Xsdt::from_phys(PhysAddr::new(self.xsdt_address as u64))
     }
 }
