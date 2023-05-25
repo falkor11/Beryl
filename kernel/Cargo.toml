@@ -8,7 +8,6 @@ license = "GPL-3.0-or-later"
 
 [dependencies]
 bilge = "0.1.1"
-lai = { git = "https://github.com/falkor11/lai-rs.git", version = "0.1.0" }
 limine = "0.1.10"
 log = { version = "0.4.17", default-features = false }
 psf2 = { version = "0.4.0", default-features = false }
